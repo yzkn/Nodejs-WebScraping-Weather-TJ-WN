@@ -1,0 +1,15 @@
+{
+  "name": "wthr",
+  "version": "1.0.0",
+  "description": "```powershell\r npm i request jsdom\r ```",
+  "main": "webscr.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsdom": "^24.1.0",
+    "request": "^2.88.2"
+  }
+}
