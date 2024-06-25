@@ -2,8 +2,13 @@
 
 
 const uri = require('./uri.js');
+
 const request = require('request');
 const { JSDOM } = require('jsdom');
+
+const { format: datefnsFormat } = require('date-fns/format')
+const { parse: datefnsParse } = require('date-fns/parse');
+
 
 const scrapeTJ = async (city) => {
     let result = {};
@@ -21,46 +26,48 @@ const scrapeTJ = async (city) => {
 
                 // 日ごと
                 uri.ELEMENT_ID_TJ.forEach((elementID, i) => {
-                    const tableElement = dom.window.document.querySelector(`#${elementID}`);
+                    try {
+                        const tableElement = dom.window.document.querySelector(`#${elementID}`);
 
-                    const dateTdString = tableElement.querySelector('td[colspan="24"]').textContent.trim();
+                        const dateTdString = tableElement.querySelector('td[colspan="24"]').textContent.trim();
 
-                    const DATE_PATTERN_TJ = /[0-9]{4}年[0-9]{2}月[0-9]{2}日/g;
-                    const dateString = `${dateTdString.match(DATE_PATTERN_TJ)}`.replace('年', '-').replace('月', '-').replace('日', '');
+                        const DATE_PATTERN_TJ = /[0-9]{4}年[0-9]{2}月[0-9]{2}日/g;
 
-                    console.log(`対象日: ${i} ${dateString}`);
+                        const hourTDs = tableElement.querySelectorAll('tr.hour td'); // 天気
+                        const weatherTDs = tableElement.querySelectorAll('tr.weather td'); // 天気
+                        const temperatureTDs = tableElement.querySelectorAll('tr.temperature td'); // 気温
+                        const probPrecipTDs = tableElement.querySelectorAll('tr.prob-precip td'); // 降水確率
+                        const precipitationTDs = tableElement.querySelectorAll('tr.precipitation td'); // 降水量
+                        const humidityTDs = tableElement.querySelectorAll('tr.humidity td'); // 湿度
+                        const windBlowTDs = tableElement.querySelectorAll('tr.wind-blow td'); // 風向
+                        const windSpeedTDs = tableElement.querySelectorAll('tr.wind-speed td'); // 風速
 
-                    const hourTDs = tableElement.querySelectorAll('tr.hour td'); // 天気
-                    const weatherTDs = tableElement.querySelectorAll('tr.weather td'); // 天気
-                    const temperatureTDs = tableElement.querySelectorAll('tr.temperature td'); // 気温
-                    const probPrecipTDs = tableElement.querySelectorAll('tr.prob-precip td'); // 降水確率
-                    const precipitationTDs = tableElement.querySelectorAll('tr.precipitation td'); // 降水量
-                    const humidityTDs = tableElement.querySelectorAll('tr.humidity td'); // 湿度
-                    const windBlowTDs = tableElement.querySelectorAll('tr.wind-blow td'); // 風向
-                    const windSpeedTDs = tableElement.querySelectorAll('tr.wind-speed td'); // 風速
+                        // 時ごと
+                        hourTDs.forEach((element, j) => {
+                            try {
+                                const hr = element.textContent.trim();
+                                const parsed = datefnsParse(`${dateTdString.match(DATE_PATTERN_TJ)} ${hr}:00:00`, "yyyy年MM月dd日 HH:00:00", new Date());
+                                const dt = datefnsFormat(parsed, 'yyyy-MM-dd HH:mm:ss', { timeZone: 'Asia/Tokyo' });
 
-                    // 時ごと
-                    hourTDs.forEach((element, j) => {
-                        const hr = element.textContent.trim();
-                        const dt = `${dateString}T${hr}:00:00+09:00`;
+                                result[dt] = {
+                                    'weatherIcon': weatherTDs[j].querySelector('img').getAttribute('src'),
+                                    'weather': weatherTDs[j].querySelector('p').textContent.trim(),
+                                    'temperature': temperatureTDs[j].querySelector('span').textContent.trim(),
+                                    'probPrecip': probPrecipTDs[j].querySelector('span').textContent.trim(),
+                                    'precipitation': precipitationTDs[j].querySelector('span').textContent.trim(),
+                                    'humidity': humidityTDs[j].textContent.trim(),
+                                    'windBlowIcon': windBlowTDs[j].querySelector('img').getAttribute('src'),
+                                    'windBlow': windBlowTDs[j].querySelector('p').textContent.trim(),
+                                    'windSpeed': windSpeedTDs[j].querySelector('span').textContent.trim()
+                                }
 
-                        try {
-                            result[dt] = {
-                                'weatherIcon': weatherTDs[j].querySelector('img').getAttribute('src'),
-                                'weather': weatherTDs[j].querySelector('p').textContent.trim(),
-                                'temperature': temperatureTDs[j].querySelector('span').textContent.trim(),
-                                'probPrecip': probPrecipTDs[j].querySelector('span').textContent.trim(),
-                                'precipitation': precipitationTDs[j].querySelector('span').textContent.trim(),
-                                'humidity': humidityTDs[j].textContent.trim(),
-                                'windBlowIcon': windBlowTDs[j].querySelector('img').getAttribute('src'),
-                                'windBlow': windBlowTDs[j].querySelector('p').textContent.trim(),
-                                'windSpeed': windSpeedTDs[j].querySelector('span').textContent.trim()
+                            } catch (e) {
+                                console.error(e, { i, j });
                             }
-
-                        } catch (e) {
-                            console.error(e, { i, j });
-                        }
-                    });
+                        });
+                    } catch (e) {
+                        console.error(e, { i });
+                    }
                 });
 
                 console.log({ result });
