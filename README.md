@@ -5,7 +5,7 @@
 ---
 
 ```powershell
-npm i request jsdom
+npm i request jsdom date-fns
 ```
 
 ---
