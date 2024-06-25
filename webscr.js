@@ -20,7 +20,7 @@ const scrapeTJ = async (city) => {
                 const dom = new JSDOM(body);
 
                 // 日ごと
-                uri.ELEMENT_ID_TJ.forEach((elementID, index) => {
+                uri.ELEMENT_ID_TJ.forEach((elementID, i) => {
                     const tableElement = dom.window.document.querySelector(`#${elementID}`);
 
                     const dateTdString = tableElement.querySelector('td[colspan="24"]').textContent.trim();
@@ -28,7 +28,7 @@ const scrapeTJ = async (city) => {
                     const DATE_PATTERN_TJ = /[0-9]{4}年[0-9]{2}月[0-9]{2}日/g;
                     const dateString = `${dateTdString.match(DATE_PATTERN_TJ)}`.replace('年', '-').replace('月', '-').replace('日', '');
 
-                    console.log(`対象日: ${index} ${dateString}`);
+                    console.log(`対象日: ${i} ${dateString}`);
 
                     const hourTDs = tableElement.querySelectorAll('tr.hour td'); // 天気
                     const weatherTDs = tableElement.querySelectorAll('tr.weather td'); // 天気
@@ -40,17 +40,30 @@ const scrapeTJ = async (city) => {
                     const windSpeedTDs = tableElement.querySelectorAll('tr.wind-speed td'); // 風速
 
                     // 時ごと
-                    hourTDs.forEach((element, index) => {
+                    hourTDs.forEach((element, j) => {
                         const hr = element.textContent.trim();
-                        const dt = `${dateString}T${hr}:00:00+09:00`
-                        result[dt] = {
-                            'icon': weatherTDs[index].querySelector('img').getAttribute('src'),
-                            'weather': weatherTDs[index].querySelector('p').textContent.trim()
+                        const dt = `${dateString}T${hr}:00:00+09:00`;
+
+                        try {
+                            result[dt] = {
+                                'weatherIcon': weatherTDs[j].querySelector('img').getAttribute('src'),
+                                'weather': weatherTDs[j].querySelector('p').textContent.trim(),
+                                'temperature': temperatureTDs[j].querySelector('span').textContent.trim(),
+                                'probPrecip': probPrecipTDs[j].querySelector('span').textContent.trim(),
+                                'precipitation': precipitationTDs[j].querySelector('span').textContent.trim(),
+                                'humidity': humidityTDs[j].textContent.trim(),
+                                'windBlowIcon': windBlowTDs[j].querySelector('img').getAttribute('src'),
+                                'windBlow': windBlowTDs[j].querySelector('p').textContent.trim(),
+                                'windSpeed': windSpeedTDs[j].querySelector('span').textContent.trim()
+                            }
+
+                        } catch (e) {
+                            console.error(e, { i, j });
                         }
                     });
                 });
 
-                console.log({ result })
+                console.log({ result });
                 return result;
             } catch (e) {
                 console.error(e);
@@ -81,7 +94,7 @@ const scrapeWN = async (city) => {
                     const DATE_PATTERN_WN = /[0-9]{2}日/g;
                     const dateString = dateTdString.match(DATE_PATTERN_WN);
 
-                    console.log(`対象日: ${index} ${dateString}`);
+                    // console.log(`対象日: ${index} ${dateString}`);
                 });
 
                 ;
