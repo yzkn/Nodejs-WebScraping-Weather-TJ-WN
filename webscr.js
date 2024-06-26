@@ -135,7 +135,7 @@ const scrapeWN = (city) => {
 
 const main = () => {
     let result = {};
-    // const city = '秩父市';
+    // const city = '秩父';
     Object.keys(uri.URL_CITIES).forEach(city => {
         result[city] = {
             "tj": scrapeTJ(city),
