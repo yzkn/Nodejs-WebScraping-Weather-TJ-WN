@@ -1,3 +1,5 @@
+// Copyright (c) 2024 YA-androidapp(https://github.com/yzkn) All rights reserved.
+
 const wn_cities = [
     {
         prefWeekUrl: "https://weathernews.jp/onebox/tenki/aichi/week/",
