@@ -2,14 +2,19 @@
   "name": "wthr",
   "version": "1.0.0",
   "description": "```powershell\r npm i request jsdom\r ```",
-  "main": "webscr.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
+  "volta": {
+    "node": "16.14.2"
+  },
   "dependencies": {
     "date-fns": "^3.6.0",
+    "fastify": "^4.28.0",
     "jsdom": "^24.1.0",
     "sync-request": "^6.1.0"
   }
