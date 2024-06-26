@@ -11,6 +11,6 @@
   "dependencies": {
     "date-fns": "^3.6.0",
     "jsdom": "^24.1.0",
-    "request": "^2.88.2"
+    "sync-request": "^6.1.0"
   }
 }
