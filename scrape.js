@@ -1,5 +1,6 @@
 // Copyright (c) 2024 YA-androidapp(https://github.com/yzkn) All rights reserved.
 
+
 const uri = require("./uri.js");
 
 const request = require("sync-request");
@@ -167,7 +168,7 @@ const scrape = (prefName = "", cityName = "") => {
 
     if (prefName != "") {
         const filtered = Object.keys(uri.URL_CITIES)
-            .filter(key => uri.URL_CITIES[key].prefecture == prefName)
+            .filter(key => uri.URL_CITIES[key].wn.prefecture == prefName)
             .reduce((obj, key) => {
                 obj[key] = uri.URL_CITIES[key]
                 return obj
@@ -203,7 +204,6 @@ const scrape = (prefName = "", cityName = "") => {
 
     // const jsonString = JSON.stringify(result, null, "\t")
     // console.log(jsonString.slice(0, 1000));
-    // console.log(jsonString);
 
     return result;
 };
