@@ -73,13 +73,11 @@ const scrapeTJ = (city) => {
                 );
                 const hr = parseInt(element.textContent.trim());
 
-                const _dt = addHours(parsed, hr);
-
-                // 第一引数が第二引数より未来か
-                if (isAfter(_dt, now)) {
+                // 未来の項目か
+                if (!weatherTDs[j].querySelector("img").getAttribute("src").includes('past')) {
 
                     const dt = datefnsFormat(
-                        _dt,
+                        addHours(parsed, hr),
                         "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
                     );
 
@@ -144,9 +142,8 @@ const scrapeWN = (city) => {
                     .textContent.trim();
                 const hr = parseInt(dateString);
 
-                const _dt = addHours(targetDate, hr);
                 const dt = datefnsFormat(
-                    _dt,
+                    addHours(targetDate, hr),
                     "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
                 );
 
