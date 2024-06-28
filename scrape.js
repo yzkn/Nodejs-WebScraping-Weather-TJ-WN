@@ -10,6 +10,7 @@ const {
     addHours,
     addMonths,
     format: datefnsFormat,
+    isAfter,
     parse: datefnsParse,
     set,
     startOfMonth,
@@ -33,6 +34,8 @@ const getTextContent = (element) => {
 
 const scrapeTJ = (city) => {
     let tjResult = {};
+
+    const now = new Date();
 
     const url = uri.URL_CITIES[city].tj.hourly;
     const response = request("GET", url);
@@ -70,26 +73,32 @@ const scrapeTJ = (city) => {
                 );
                 const hr = parseInt(element.textContent.trim());
 
-                const dt = datefnsFormat(
-                    addHours(parsed, hr),
-                    "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
-                );
+                const _dt = addHours(parsed, hr);
 
-                tjResult[dt] = {
-                    weatherIcon: weatherTDs[j].querySelector("img").getAttribute("src"),
-                    weather: weatherTDs[j].querySelector("p").textContent.trim(),
-                    temperature: temperatureTDs[j]
-                        .querySelector("span")
-                        .textContent.trim(),
-                    probPrecip: probPrecipTDs[j].querySelector("span").textContent.trim(),
-                    precipitation: precipitationTDs[j]
-                        .querySelector("span")
-                        .textContent.trim(),
-                    humidity: humidityTDs[j].textContent.trim(),
-                    windBlowIcon: windBlowTDs[j].querySelector("img").getAttribute("src"),
-                    windBlow: windBlowTDs[j].querySelector("p").textContent.trim(),
-                    windSpeed: windSpeedTDs[j].querySelector("span").textContent.trim(),
-                };
+                // 第一引数が第二引数より未来か
+                if (isAfter(_dt, now)) {
+
+                    const dt = datefnsFormat(
+                        _dt,
+                        "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
+                    );
+
+                    tjResult[dt] = {
+                        weatherIcon: weatherTDs[j].querySelector("img").getAttribute("src"),
+                        weather: weatherTDs[j].querySelector("p").textContent.trim(),
+                        temperature: temperatureTDs[j]
+                            .querySelector("span")
+                            .textContent.trim(),
+                        probPrecip: probPrecipTDs[j].querySelector("span").textContent.trim(),
+                        precipitation: precipitationTDs[j]
+                            .querySelector("span")
+                            .textContent.trim(),
+                        humidity: humidityTDs[j].textContent.trim(),
+                        windBlowIcon: windBlowTDs[j].querySelector("img").getAttribute("src"),
+                        windBlow: windBlowTDs[j].querySelector("p").textContent.trim(),
+                        windSpeed: windSpeedTDs[j].querySelector("span").textContent.trim(),
+                    };
+                }
             });
         });
     }
@@ -135,8 +144,9 @@ const scrapeWN = (city) => {
                     .textContent.trim();
                 const hr = parseInt(dateString);
 
+                const _dt = addHours(targetDate, hr);
                 const dt = datefnsFormat(
-                    addHours(targetDate, hr),
+                    _dt,
                     "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
                 );
 
