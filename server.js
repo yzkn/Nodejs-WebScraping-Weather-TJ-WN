@@ -3,8 +3,8 @@
 const scrape = require("./scrape.js");
 
 const fastify = require("fastify")({
-    logger: false,
-    // logger: true,
+    // logger: false,
+    logger: true,
 });
 
 fastify.register(require('@fastify/cors'), (instance) => {
@@ -14,10 +14,10 @@ fastify.register(require('@fastify/cors'), (instance) => {
             origin: true
         };
 
-        // do not include CORS headers for requests from localhost
-        if (/^localhost$/m.test(req.headers.origin)) {
-            corsOptions.origin = false
-        }
+        // // do not include CORS headers for requests from localhost
+        // if (/^localhost$/m.test(req.headers.origin)) {
+        //     corsOptions.origin = false
+        // }
 
         // callback expects two parameters: error and options
         callback(null, corsOptions)
@@ -72,7 +72,8 @@ fastify.get("/", (request, reply) => {
 });
 
 fastify.listen(
-    { port: process.env.PORT, host: "localhost" },
+    // { port: process.env.PORT, host: "localhost" },
+    { port: process.env.PORT || 3000, host: "localhost" },
     function (err, address) {
         if (err) {
             console.error(err);
