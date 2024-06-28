@@ -32,7 +32,7 @@ const getTextContent = (element) => {
 };
 
 const scrapeTJ = (city) => {
-    let result = {};
+    let tjResult = {};
 
     const url = uri.URL_CITIES[city].tj.hourly;
     const response = request("GET", url);
@@ -75,7 +75,7 @@ const scrapeTJ = (city) => {
                     "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
                 );
 
-                result[dt] = {
+                tjResult[dt] = {
                     weatherIcon: weatherTDs[j].querySelector("img").getAttribute("src"),
                     weather: weatherTDs[j].querySelector("p").textContent.trim(),
                     temperature: temperatureTDs[j]
@@ -94,11 +94,11 @@ const scrapeTJ = (city) => {
         });
     }
 
-    return result;
+    return tjResult;
 };
 
 const scrapeWN = (city) => {
-    let result = {};
+    let wnResult = {};
 
     const url = uri.URL_CITIES[city].wn.hourly;
     const response = request("GET", url);
@@ -113,7 +113,7 @@ const scrapeWN = (city) => {
                 .querySelector(".date")
                 .textContent.trim();
 
-            const DATE_PATTERN_WN = /[0-9]{2}/g;
+            const DATE_PATTERN_WN = /[0-9]{1,2}/g;
             const matched = `${dateTdString.match(DATE_PATTERN_WN)}`;
             const day = parseInt(matched);
 
@@ -127,7 +127,8 @@ const scrapeWN = (city) => {
                     : dateOfNextMonth;
 
             // 時ごと
-            const listElements = tableElement.querySelectorAll("ul.list");
+            const listElements = divGroupElement.querySelectorAll("ul.list");
+
             listElements.forEach((listElement, j) => {
                 const dateString = listElement
                     .querySelector(".time p")
@@ -139,7 +140,7 @@ const scrapeWN = (city) => {
                     "yyyy-MM-dd'T'HH:mm:ss'+09:00'"
                 );
 
-                result[dt] = {
+                wnResult[dt] = {
                     weatherIcon: listElement
                         .querySelector(".weather img")
                         .getAttribute("src"),
@@ -160,7 +161,7 @@ const scrapeWN = (city) => {
         });
     }
 
-    return result;
+    return wnResult;
 };
 
 const scrape = (prefName = "", cityName = "") => {
@@ -176,6 +177,7 @@ const scrape = (prefName = "", cityName = "") => {
 
         Object.keys(filtered).forEach((city) => {
             result[city] = {
+                hall: uri.URL_CITIES[city].hall,
                 tj: scrapeTJ(city),
                 wn: scrapeWN(city),
             };
@@ -183,6 +185,7 @@ const scrape = (prefName = "", cityName = "") => {
     } else if (cityName == "") {
         Object.keys(uri.URL_CITIES).forEach((city) => {
             result[city] = {
+                hall: uri.URL_CITIES[city].hall,
                 tj: scrapeTJ(city),
                 wn: scrapeWN(city),
             };
@@ -191,12 +194,14 @@ const scrape = (prefName = "", cityName = "") => {
         cityName.split(',').forEach((part) => {
             const city = part.trim();
             result[city] = {
+                hall: uri.URL_CITIES[city].hall,
                 tj: scrapeTJ(city),
                 wn: scrapeWN(city),
             };
         });
     } else {
         result[cityName] = {
+            hall: uri.URL_CITIES[cityName].hall,
             tj: scrapeTJ(cityName),
             wn: scrapeWN(cityName),
         };

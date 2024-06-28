@@ -5,7 +5,7 @@
 ---
 
 ```powershell
-npm i sync-request jsdom date-fns
+npm i sync-request jsdom date-fns fastify @fastify/cors
 ```
 
 ---
