@@ -115,7 +115,7 @@ const checkVersion = _ => {
             // 504対策のためforEachを使わずに直列処理
             for (let city of apiTargetLocations) {
                 await retrieve(city);
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                await new Promise(resolve => setTimeout(resolve, 8000));
             };
         }
     });
