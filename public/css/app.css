@@ -1,0 +1,38 @@
+.icon {
+  max-width: 70%;
+  max-height: 70%;
+  margin: 4px;
+}
+
+#scale {
+  display: none;
+}
+
+#map_card {
+  position: relative;
+  width: 100%;
+}
+
+#map_card:before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+html,
+body,
+.container {
+  overscroll-behavior-y: none;
+}
+
+img.weatherIcon {
+  width: 5px;
+}
