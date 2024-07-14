@@ -3,9 +3,12 @@
 const scrape = require("./scrape.js");
 
 const fastify = require("fastify")({
-    // logger: false,
-    logger: true,
+    logger: false,
+    // logger: true,
 });
+
+const path = require('path');
+const fastifyStatic = require('@fastify/static');
 
 fastify.register(require('@fastify/cors'), (instance) => {
     return (req, callback) => {
@@ -14,10 +17,10 @@ fastify.register(require('@fastify/cors'), (instance) => {
             origin: true
         };
 
-        // // do not include CORS headers for requests from localhost
-        // if (/^localhost$/m.test(req.headers.origin)) {
-        //     corsOptions.origin = false
-        // }
+        // do not include CORS headers for requests from localhost
+        if (/^localhost$/m.test(req.headers.origin)) {
+            corsOptions.origin = false
+        }
 
         // callback expects two parameters: error and options
         callback(null, corsOptions)
@@ -64,16 +67,20 @@ fastify.get("/prefecture/:prefecture", async (request, reply) => {
     await reply;
 });
 
-fastify.get("/", (request, reply) => {
+fastify.get("/version", (request, reply) => {
     reply
         .code(200)
         .header("Content-Type", "application/json; charset=utf-8")
         .send({ version: "1.0.0" });
 });
 
+fastify.register(fastifyStatic, {
+    root: path.join(__dirname, 'public'),
+    prefix: '/', // optional: default '/'
+})
+
 fastify.listen(
-    // { port: process.env.PORT, host: "localhost" },
-    { port: process.env.PORT || 3000, host: "localhost" },
+    { port: process.env.PORT, host: "localhost" },
     function (err, address) {
         if (err) {
             console.error(err);

@@ -176,48 +176,17 @@ function initMap() {
     L = window.L;
     map = L.map('map', {
         center: [35.681236, 139.767125],
-        zoom: 11
+        zoom: 11,
+        closePopupOnClick: false,
     }).addLayer(baseMaps['Esri(航空写真)']);
     // L.control.layers(baseMaps).addTo(map);
     L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-    var style = {
-        color: 'red',
-        opacity: 1.0,
-        fillOpacity: 1.0,
-        weight: 1,
-        clickable: false
-    };
-    L.Control.FileLayerLoad.LABEL = '<img class="icon" src="img/pin.svg" />';
-    control = L.Control.fileLayerLoad({
-        fileSizeLimit: 1024000,
-        fitBounds: true,
-        layerOptions: {
-            style: style,
-            pointToLayer: function (data, latlng) { }
-        }
-    });
-    control.addTo(map);
-    control.loader.on('data:loaded', function (e) {
-        var layer = e.layer;
-        console.log(layer);
-    });
-    control.loader.on('data:error', function (error) {
-        console.error(error);
-    });
-
-    L.control.BigImage({
-        downloadTitle: 'Download',
-        inputTitle: ' Download your png file: ',
-        maxScale: 3,
-        position: 'topleft',
-        printControlTitle: 'Capture image',
-        title: 'Capture image',
-    }).addTo(map);
-
-    L.easyButton('<img class="icon" src="img/share.svg" title="Share this map (You need to use Chrome for Android.)"/>', function (btn, map) {
-        shareImage();
-    }).addTo(map);
+    const options = {
+      position: 'topleft',
+      fileSizeLimit: 1024*1024
+    }
+    L.Control.betterFileLayer(options).addTo(map);
 
     map.on('moveend', function (e) {
         const latitude = document.getElementById('latitude');
@@ -242,49 +211,4 @@ function initGeoman() {
     map.pm.addControls({
         position: 'topleft'
     });
-}
-
-//
-
-function shareImage() {
-    domtoimage.toPng(document.getElementsByClassName('leaflet-pane leaflet-map-pane')[0])
-        .then(function (dataUrl) {
-            var img = new Image();
-            img.src = dataUrl;
-
-            img.onload = () => {
-                var mapDiv = document.getElementById('map');
-                const canvas = document.createElement('canvas');
-                canvas.width = mapDiv.clientWidth;
-                canvas.height = mapDiv.clientHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, mapDiv.clientWidth, mapDiv.clientHeight, 0, 0, mapDiv.clientWidth, mapDiv.clientHeight);
-
-                canvas.toBlob((blob) => {
-                    const image = new File([blob], 'map.png', { type: 'image/png' });
-                    if (navigator.canShare && navigator.canShare({ files: [image] })) {
-                        navigator.share({
-                            text: 'MyRoutesで作成した軌跡画像を共有します。',
-                            url: thisUrl,
-                            files: [image]
-                        }).then(() => {
-                            console.log('共有に成功しました。')
-                        }).catch((error) => {
-                            console.log('共有に失敗しました。', error)
-                        })
-                    } else {
-                        window.alert("このブラウザは Web Share API に対応していないようです。Chrome for Android をご利用ください。");
-
-                        var resultDiv = document.getElementById('result');
-                        const details = document.createElement('details');
-                        resultDiv.textContent += '出力画像';
-                        resultDiv.appendChild(details);
-                        details.appendChild(canvas);
-                    }
-                });
-            };
-        })
-        .catch(function (error) {
-            console.error('oops, something went wrong!', error);
-        });
 }
